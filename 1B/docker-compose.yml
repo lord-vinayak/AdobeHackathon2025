@@ -1,0 +1,33 @@
+
+version: '3.8'
+
+services:
+  pdf-extractor:
+    build: .
+    container_name: pdf-outline-extractor
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./input:/home/appuser/input:ro
+      - ./output:/home/appuser/output:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    restart: unless-stopped
+
+  # Optional: Add a test service
+  test:
+    build: .
+    container_name: pdf-extractor-test
+    command: ["python", "-m", "pytest", "-v", "tests/"]
+    volumes:
+      - ./tests:/home/appuser/tests:ro
+    depends_on:
+      - pdf-extractor
+    profiles:
+      - test
